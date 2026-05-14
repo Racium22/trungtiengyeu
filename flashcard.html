@@ -363,16 +363,16 @@
                 {h: "等", p: "děng", v: "Đợi", r: "Bộ Trúc (竹)."}
             ];
 
-            let data = masterData.slice(0, 100);
+            let data = masterData.slice(0, 103);
 
             function changeRange() {
                 const val = document.getElementById('rangeSelect').value;
                 if (val === '1-100') {
-                    data = masterData.slice(0, 100);
+                    data = masterData.slice(0, 103);
                 } else if (val === '101-200') {
-                    data = masterData.slice(100, 200);
+                    data = masterData.slice(103, 203);
                 } else if (val === '201-300') {
-                    data = masterData.slice(200, 300);
+                    data = masterData.slice(203, 303);
                 } else if (val === 'all') {
                     data = [...masterData];
                 } else if (val.startsWith('random-')) {

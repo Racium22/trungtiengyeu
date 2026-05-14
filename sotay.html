@@ -355,16 +355,16 @@
                 {h: "等", p: "děng", v: "Đợi", r: "Bộ Trúc (竹)."}
             ];
 
-            let words = masterData.slice(0, 100);
+            let words = masterData.slice(0, 103);
 
             function changeRange() {
                 const val = document.getElementById('rangeSelect').value;
                 if (val === '1-100') {
-                    words = masterData.slice(0, 100);
+                    words = masterData.slice(0, 103);
                 } else if (val === '101-200') {
-                    words = masterData.slice(100, 200);
+                    words = masterData.slice(103, 203);
                 } else if (val === '201-300') {
-                    words = masterData.slice(200, 300);
+                    words = masterData.slice(203, 303);
                 } else if (val === 'all') {
                     words = [...masterData];
                 }
