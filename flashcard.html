@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Flashcard Từ Vựng</title>
+    <script src="https://cdn.jsdelivr.net/npm/hanzi-writer@3.5/dist/hanzi-writer.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="index.html">Trang Chủ</a></li>
+            <li><a href="sotay.html">Sổ Tay</a></li>
+            <li><a href="flashcard.html" class="active">Flashcard</a></li>
+        </ul>
+    </nav>
+    <div class="flashcard-container">
+        <!-- RANGE SELECTOR UI -->
+        <div style="margin-top:20px; margin-bottom: 10px; display:flex; gap:10px; align-items:center; flex-wrap: wrap; justify-content: center;">
+            <label for="rangeSelect" style="font-weight:bold; color:var(--secondary);">Lựa chọn số từ ôn tập:</label>
+            <select id="rangeSelect" style="padding:8px 12px; border-radius:10px; border:1px solid #ccc; font-weight:bold; color:var(--primary); cursor:pointer;" onchange="changeRange()">
+                <option value="1-100" selected>Từ 1 - 100</option>
+                <option value="101-200">Từ 101 - 200</option>
+                <option value="201-300">Từ 201 - 300</option>
+                <option value="all">Tất cả 300 từ</option>
+                <option value="random-50">50 từ (Ngẫu nhiên)</option>
+                <option value="random-100">100 từ (Ngẫu nhiên)</option>
+                <option value="random-200">200 từ (Ngẫu nhiên)</option>
+            </select>
+        </div>
+
+        <div class="card-container" id="cardContainer" onclick="handleFlip()">
+            <div class="card-inner">
+                <div class="front">
+                    <div class="label">Nghĩa tiếng Việt</div>
+                    <div class="meaning" id="frontMeaning">...</div>
+                    <div class="hint">Chạm để lật thẻ</div>
+                </div>
+                <div class="back">
+                    <div class="back-header">
+                        <div class="static-hanzi" id="backHanziText"></div>
+                        <div class="pinyin" id="backPinyin"></div>
+                    </div>
+                    <div id="stroke-wrapper"></div>
+                    <button class="replay-btn" onclick="replayAll(event)">VIẾT LẠI NÉT ↺</button>
+                    <div class="radical-info" id="backRadical"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <span id="counter">1 / 100</span>
+            <button class="btn-next" id="nextBtn" onclick="nextCard(event)">TIẾP THEO ➔</button>
+        </div>
+
+        <script>
+            const masterData = [
+                { h: "你", p: "nǐ", v: "Bạn", r: "Bộ Nhân (亻) - người + bộ Mịch (冖) + bộ Tiểu (小)." },
+                { h: "你们", p: "nǐmen", v: "Các bạn", r: "Chữ 们 có bộ Nhân (亻) chỉ người." },
+                { h: "我", p: "wǒ", v: "Tôi", r: "Bộ Qua (戈) - binh khí. Ý nghĩa: Cái tôi mạnh mẽ." },
+                { h: "我们", p: "wǒmen", v: "Chúng tôi", r: "我 (Tôi) + 们 (số nhiều)." },
+                { h: "他", p: "tā", v: "Anh ấy", r: "Bộ Nhân (亻) - chỉ nam giới." },
+                { h: "她", p: "tā", v: "Cô ấy", r: "Bộ Nữ (女) - chỉ nữ giới." },
+                { h: "它", p: "tā", v: "Nó", r: "Bộ Miên (宀) - mái nhà. Dùng cho vật." },
+                { h: "他们", p: "tāmen", v: "Họ (Dùng chung)", r: "Sử dụng 'tha' nam làm đại diện chung." },
+                { h: "她们", p: "tāmen", v: "Họ (Các chị ấy)", r: "Sử dụng 'tha' nữ làm đại diện chung." },
+                { h: "大家", p: "dàjiā", v: "Mọi người", r: "Đại (大) - lớn + Gia (家) - nhà (bộ Miên 宀)." },
+                { h: "爸爸", p: "bàba", v: "Bố", r: "Bộ Phụ (父) - cha, người đàn ông trụ cột." },
+                { h: "妈妈", p: "māma", v: "Mẹ", r: "Bộ Nữ (女) - phụ nữ + chữ Mã (马) tượng thanh." },
+                { h: "哥哥", p: "gēge", v: "Anh trai", r: "Gồm 2 bộ Khả (可) chồng lên nhau." },
+                { h: "姐姐", p: "jiějie", v: "Chị gái", r: "Bộ Nữ (女) + bộ Thả (且)." },
+                { h: "妹妹", p: "mèimei", v: "Em gái", r: "Bộ Nữ (女) + chữ Vị (未) - chưa trưởng thành." },
+                { h: "弟弟", p: "dìdi", v: "Em trai", r: "Bộ Cung (弓) + nét phẩy." },
+                { h: "朋友", p: "péngyou", v: "Bạn bè", r: "Bằng (朋) - 2 vầng trăng + Hữu (友) - bộ Hựu." },
+                { h: "老师", p: "lǎoshī", v: "Thầy/Cô", r: "Bộ Lão (耂) - già + bộ Cân (巾) - khăn." },
+                { h: "学生", p: "xuésheng", v: "Học sinh", r: "Bộ Tử (子) - con trẻ + bộ Sinh (生)." },
+                { h: "爷爷", p: "yéye", v: "Ông nội", r: "Bộ Phụ (父) - cha/ông." },
+                { h: "奶奶", p: "nǎinai", v: "Bà nội", r: "Bộ Nữ (女) - phụ nữ/bà." },
+                { h: "外公", p: "wàigōng", v: "Ông ngoại", r: "Ngoại (外) - bộ Tịch + Công (公) - bộ Bát." },
+                { h: "外婆", p: "wàipó", v: "Bà ngoại", r: "Ngoại (外) + Bà (婆) - có bộ Nữ (女)." },
+                { h: "孩子", p: "háizi", v: "Con cái", r: "Bộ Tử (子) - đứa trẻ." },
+                { h: "儿女", p: "érnǚ", v: "Con cái", r: "Bộ nhi (儿) - bộ nữ(女)." },
+                { h: "儿子", p: "érzi", v: "Con trai", r: "Bộ Nhi (儿) + bộ Tử (子)." },
+                { h: "女儿", p: "nǚ'ér", v: "Con gái", r: "Bộ Nữ (女) + bộ Nhi (儿)." },
+                { h: "医生", p: "yīshēng", v: "Bác sĩ", r: "Y (医) - bộ Phương 匚 + Sinh (生)." },
+                { h: "工人", p: "gōngrén", v: "Công nhân", r: "Công (工) - thợ + Nhân (人) - người." },
+                { h: "人", p: "rén", v: "Người", r: "Bộ Nhân (人) - hình dáng người đứng." },
+                { h: "女人", p: "nǚ rén", v: "Phái nữ", r: "Bộ Nữ (女) - bộ nhân (人)." },
+                { h: "男人", p: "nán rén", v: "Phái nam", r: "Bộ Điền (田) - ruộng + bộ Lực (力) - sức mạnh- bộ nhân (人)." },
+                { h: "好人", p: "hǎorén", v: "Người tốt", r: "Hảo (好) - bộ Nữ + bộ Tử." },
+                { h: "坏人", p: "huàirén", v: "Kẻ xấu", r: "Hoại (坏) - bộ Thổ (土) + chữ Bất (不)." },
+                { h: "也", p: "yě", v: "Cũng", r: "Nguyên thủy là hình con rắn." },
+                { h: "都", p: "dōu", v: "Đều", r: "Bộ Ấp (阝) nằm bên phải." },
+                { h: "谁", p: "shéi", v: "Ai", r: "Bộ Ngôn (讠) - lời nói + bộ Truy (隹)." },
+                { h: "什么", p: "shénme", v: "Cái gì", r: "Thập (什) - bộ Nhân + Ma (么) - bộ Phiệt." },
+                { h: "哪", p: "nǎ", v: "Nào", r: "Bộ Khẩu (口) + bộ Ấp (阝)." },
+                { h: "哪儿", p: "nǎr", v: "Đâu", r: "哪 + bộ Nhi (儿) dùng làm âm cuốn lưỡi." },
+                { h: "几", p: "jǐ", v: "Mấy", r: "Bộ Kỷ (几) - cái bàn nhỏ." },
+                { h: "怎么样", p: "zěnmeyàng", v: "Như thế nào", r: "Chữ Mẫu (样) có bộ Mộc (木)." },
+                { h: "怎么", p: "zěnme", v: "Làm sao/Thế nào", r: "Chẩm (怎) có bộ Tâm (心) ở dưới." },
+                { h: "多少", p: "duōshǎo", v: "Bao nhiêu", r: "Đa (多) - 2 bộ Tịch (đêm) + Thiểu (少)." },
+                { h: "为什么", p: "wèishénme", v: "Vì sao", r: "Vi (为) + Thập Ma (什么)." },
+                { h: "年", p: "nián", v: "Năm", r: "Can (干)." },
+                { h: "今年", p: "jīnnián", v: "Năm nay", r: "Kim (今) + Niên (年)." },
+                { h: "明年", p: "míngnián", v: "Năm sau", r: "Minh (明) - Nhật + Nguyệt." },
+                { h: "去年", p: "qùnián", v: "Năm ngoái", r: "Khứ (去) + Niên (年)." },
+                { h: "每年", p: "měinián", v: "Hàng năm", r: "Mỗi (每) + Niên (年)." },
+                { h: "月", p: "yuè", v: "Tháng", r: "Bộ Nguyệt (月)." },
+                { h: "这个月", p: "zhège yuè", v: "Tháng này", r: "Giá (这) - bộ Quai xước." },
+                { h: "上个月", p: "shàng ge yuè", v: "Tháng trước", r: "Thượng (上)." },
+                { h: "下个月", p: "xià ge yuè", v: "Tháng sau", r: "Hạ (下)." },
+                { h: "每月", p: "měiyuè", v: "Hàng tháng", r: "Mỗi (每) + Nguyệt (月)." },
+                { h: "号", p: "hào", v: "Ngày trong tháng", r: "Bộ Khẩu (口)." },
+                { h: "日", p: "Rì", v: "Ngày trong tháng/Mặt trời", r: "Hình mặt trời." },
+                { h: "天", p: "tiān", v: "Ngày/Trời", r: "Bộ Đại (大)." },
+                { h: "今天", p: "jīntiān", v: "Hôm nay", r: "Kim (今) + Thiên (天)." },
+                { h: "明天", p: "míngtiān", v: "Ngày mai", r: "Minh (明) + Thiên (天)." },
+                { h: "昨天", p: "zuótiān", v: "Hôm qua", r: "Tạc (昨) - bộ Nhật." },
+                { h: "后天", p: "hòutiān", v: "Ngày kia", r: "Hậu (后)." },
+                { h: "每天", p: "měitiān", v: "Mỗi ngày", r: "Mỗi (每) + Thiên (天)." },
+                { h: "星期", p: "xīngqī", v: "Thứ/Tuần", r: "Tinh (星) + Kỳ (期)." },
+                { h: "周", p: "zhōu", v: "Thứ/Tuần", r: "Bộ Quynh (冂)." },
+                { h: "礼拜", p: "lǐbài", v: "Tuần/Thứ", r: "Lễ (礼) + Bái (拜)." },
+                { h: "早上", p: "zǎoshang", v: "Buổi sáng (6-8h)", r: "Tảo (早) + Thượng (上)." },
+                { h: "上午", p: "shàngwǔ", v: "Buổi sáng (8-10h)", r: "Ngọ (午)." },
+                { h: "中午", p: "zhōngwǔ", v: "Buổi trưa", r: "Trung (中) + Ngọ (午)." },
+                { h: "下午", p: "xiàwǔ", v: "Buổi chiều", r: "Hạ (下) + Ngọ (午)." },
+                { h: "晚上", p: "wǎnshang", v: "Buổi tối", r: "Vãn (晚) + Thượng (上)." },
+                { h: "点", p: "diǎn", v: "Giờ", r: "Bộ Hỏa (灬)." },
+                { h: "越南", p: "Yuènán", v: "Việt Nam", r: "Việt (越) + Nam (南)." },
+                { h: "中国", p: "Zhōngguó", v: "Trung Quốc", r: "Trung (中) + Quốc (国)." },
+                { h: "美国", p: "Měiguó", v: "Mỹ", r: "Mỹ (美) + Quốc (国)." },
+                { h: "德国", p: "Déguó", v: "Đức", r: "Đức (德) + Quốc (国)." },
+                { h: "俄国", p: "Éguó", v: "Nga", r: "" },
+                { h: "法国", p: "Fǎguó", v: "Pháp", r: "Pháp (法) + Quốc (国)." },
+                { h: "日本", p: "Rìběn", v: "Nhật", r: "Nhật (日) + Bản (本)." },
+                { h: "韩国", p: "Hánguó", v: "Hàn", r: "Hàn (韩) + Quốc (国)." },
+                { h: "加拿大", p: "Jiānádà", v: "Canada", r: "Gia + Na + Đại." },
+                { h: "英国", p: "Yīngguó", v: "Anh", r: "Anh (英) + Quốc (国)." },
+                { h: "北京", p: "Běijīng", v: "Bắc Kinh", r: "Bắc (北) + Kinh (京)." },
+                { h: "上海", p: "Shànghǎi", v: "Thượng Hải", r: "Thượng (上) + Hải (海)." },
+                { h: "重庆", p: "Chóngqìng", v: "Trùng Khánh", r: "Trọng (重) + Khánh (庆)." },
+                { h: "天津", p: "Tiānjīn", v: "Thiên Tân", r: "Thiên (天) + Tân (津)." },
+                { h: "河内", p: "Hénèi", v: "Hà Nội", r: "Hà (河) + Nội (内)." },
+                { h: "广宁", p: "Guǎngníng", v: "Quảng Ninh", r: "Quảng (广) + Ninh (宁)." },
+                { h: "胡志明市", p: "Húzhìmíng Shì", v: "TP.HCM", r: "Hồ + Chí + Minh + Thị." },
+                { h: "岘港", p: "Xiàngǎng", v: "Đà Nẵng", r: "Hiện (岘) + Cảng (港)." },
+                { h: "零", p: "líng", v: "0", r: "Bộ Vũ (雨)." },
+                { h: "一", p: "yī", v: "1", r: "Bộ Nhất (一)." },
+                { h: "二", p: "èr", v: "2", r: "Bộ Nhị (二)." },
+                { h: "三", p: "sān", v: "3", r: "Bộ Tam (三)." },
+                { h: "四", p: "sì", v: "4", r: "Bộ Vi (囗)." },
+                { h: "五", p: "wǔ", v: "5", r: "Bộ Ngũ (五)." },
+                { h: "六", p: "liù", v: "6", r: "Bộ Bát (八)." },
+                { h: "七", p: "qī", v: "7", r: "Bộ Thất (七)." },
+                { h: "八", p: "bā", v: "8", r: "Bộ Bát (八)." },
+                { h: "九", p: "jiǔ", v: "9", r: "Bộ Phiệt (丿)." },
+                { h: "十", p: "shí", v: "10", r: "Bộ Thập (十)." },
+                { h: "分", p: "fēn", v: "Phút", r: "Bộ Bát (八) + Đao (刀)." },
+                { h: "分钟", p: "fēnzhōng", v: "Phút (thời lượng)", r: "Phân (分) + Chung (钟)." },
+                
+                {h: "家", p: "jiā", v: "Nhà", r: "Bộ Miên (宀) - mái nhà."},
+                {h: "学校", p: "xuéxiào", v: "Trường học", r: "Bộ Tử (子) + Bộ Mộc (木)."},
+                {h: "医院", p: "yīyuàn", v: "Bệnh viện", r: "Bộ Phương (匚) + Bộ Phụ (阝)."},
+                {h: "银行", p: "yínháng", v: "Ngân hàng", r: "Bộ Kim (金) + Bộ Xích (彳)."},
+                {h: "市场", p: "shìchǎng", v: "Chợ", r: "Bộ Khẩu (口) + Bộ Thổ (土)."},
+                {h: "超市", p: "chāoshì", v: "Siêu thị", r: "Bộ Tẩu (走) + Bộ Khẩu (口)."},
+                {h: "商店", p: "shāngdiàn", v: "Cửa hàng", r: "Bộ Khẩu (口) + Bộ Quảng (广)."},
+                {h: "鞋店", p: "xiédiàn", v: "Tiệm giày", r: "Bộ Cách (革) - da thuộc + Bộ Quảng (广)."},
+                {h: "花店", p: "huādiàn", v: "Cửa hàng hoa", r: "Bộ Thảo (艹) - cây cỏ."},
+                {h: "水果店", p: "shuǐguǒ diàn", v: "Cửa hàng hoa quả", r: "Thủy (水) + Quả (果) + Điếm (店)."},
+                {h: "衣服店", p: "yī fu diàn", v: "Cửa hàng quần áo", r: "Phục (服) + Trang (装) + Điếm (店)."},
+                {h: "公司", p: "gōngsī", v: "Công ty", r: "Công (公) + Ti (司)."},
+                {h: "公园", p: "gōngyuán", v: "Công viên", r: "Công (公) + Viên (园) - bộ Vi (囗)."},
+                {h: "书店", p: "shūdiàn", v: "Cửa hàng sách", r: "Thư (书) - bộ Cổn + Điếm (店)."},
+                {h: "狗", p: "gǒu", v: "Chó", r: "Bộ Khuyển (犭) - con chó."},
+                {h: "猫", p: "māo", v: "Mèo", r: "Bộ Thể (豸) + bộ Thảo (艹) + bộ Điền (田)."},
+                {h: "鸡", p: "jī", v: "Gà", r: "Bộ Điểu (鸟) - con chim."},
+                {h: "鱼", p: "yú", v: "Cá", r: "Bộ Ngư (鱼) - con cá."},
+                {h: "牛", p: "niú", v: "Bò", r: "Bộ Ngưu (牛) - con bò."},
+                {h: "羊", p: "yáng", v: "Dê", r: "Bộ Dương (羊) - con dê."},
+                {h: "马", p: "mǎ", v: "Ngựa", r: "Bộ Mã (马) - con ngựa."},
+                {h: "鸟", p: "niǎo", v: "Chim", r: "Bộ Điểu (鸟) - con chim."},
+                {h: "猪", p: "zhū", v: "Lợn", r: "Bộ Khuyển (犭) + bộ Giả."},
+                {h: "老虎", p: "lǎo hǔ", v: "Hổ", r: "Bộ Hổ (虍) - con hổ."},
+                {h: "百", p: "bǎi", v: "Trăm", r: "Bộ Bạch (白) + nét nhất."},
+                {h: "千", p: "qiān", v: "Nghìn", r: "Bộ Thập (十) + nét phiệt."},
+                {h: "万", p: "wàn", v: "Vạn", r: "Bộ Nhất (一)."},
+                {h: "亿", p: "yì", v: "Trăm triệu", r: "Bộ Nhân (亻) + bộ Ất."},
+                {h: "同学", p: "tóngxué", v: "Bạn học", r: "Đồng (同) - bộ Quynh + Học (学)."},
+                {h: "同事", p: "tóngshì", v: "Đồng nghiệp", r: "Đồng (同) + Sự (事) - công việc."},
+                {h: "同乡", p: "tóngxiāng", v: "Đồng hương", r: "Đồng (同) + Hương (乡)."},
+                {h: "菜", p: "cài", v: "Rau/Món ăn", r: "Bộ Thảo (艹) + bộ Thái."},
+                {h: "茶", p: "chá", v: "Trà", r: "Bộ Thảo (艹) + bộ Nhân + bộ Mộc."},
+                {h: "理发店", p: "lǐfà diàn", v: "Quán cắt tóc", r: "Lý (理) + Phát (发) - tóc + Điếm (店)."},
+                {h: "手机店", p: "shǒujī diàn", v: "CH điện thoại", r: "Thủ (手) + Cơ (机) + Điếm (店)."},
+                {h: "水果", p: "shuǐguǒ", v: "Hoa quả", r: "Thủy (水) + Quả (果)."},
+                {h: "机场", p: "jīchǎng", v: "Sân bay", r: "Cơ (机) - máy móc + Trường (场) - sân."},
+                {h: "车站", p: "chēzhàn", v: "Bến xe", r: "Xa (车) - xe + Trạm (站)."},
+                {h: "火车站", p: "huǒchē zhàn", v: "Ga tàu hoả", r: "Hỏa (火) + Xa (车) + Trạm (站)."},
+                {h: "飞机", p: "fēijī", v: "Máy bay", r: "Phi (飞) - bay + Cơ (机)."},
+                {h: "电视", p: "diànshì", v: "TV", r: "Điện (电) + Thị (视) - nhìn."},
+                {h: "电脑", p: "diànnǎo", v: "Máy tính", r: "Điện (电) + Não (脑) - bộ não."},
+                {h: "电话", p: "diànhuà", v: "Điện thoại", r: "Điện (电) + Thoại (话) - bộ Ngôn."},
+                {h: "手机", p: "shǒujī", v: "Điện thoại di động", r: "Thủ (手) - tay + Cơ (机)."},
+                {h: "书", p: "shū", v: "Sách", r: "Bộ Cổn (丨)."},
+                {h: "笔", p: "bǐ", v: "Bút", r: "Bộ Trúc (竹) + bộ Duật."},
+                {h: "杯子", p: "bēizi", v: "Cốc", r: "Bộ Mộc (木) + bộ Tử."},
+                {h: "电影", p: "diànyǐng", v: "Phim", r: "Điện (电) + Ảnh (影)."},
+                {h: "水", p: "shuǐ", v: "Nước", r: "Bộ Thủy (水)."},
+                {h: "山", p: "shān", v: "Núi", r: "Bộ Sơn (山)."},
+                {h: "桌子", p: "zhuōzi", v: "Bàn", r: "Bộ Mộc (木) + bộ Tử."},
+                {h: "椅子", p: "yǐzi", v: "Ghế", r: "Bộ Mộc (木) + bộ Tử."},
+                {h: "书包", p: "shūbāo", v: "Cặp sách", r: "Thư (书) + Bao (包) - bao bọc."},
+                {h: "衣服", p: "yīfu", v: "Quần áo", r: "Y (衣) - áo + Phục (服)."},
+                {h: "谢谢", p: "xièxie", v: "Cảm ơn", r: "Bộ Ngôn (讠) - lời nói."},
+                {h: "不客气", p: "bú kèqi", v: "Đừng khách sáo", r: "Bất + Khách (客) + Khí (气)."},
+                {h: "再见", p: "zàijiàn", r: "Tái (再) + Kiến (见) - gặp lại.", v: "Tạm biệt"},
+                {h: "对不起", p: "duìbuqǐ", v: "Xin lỗi", r: "Đối (对) + Bất (不) + Khởi (起)."},
+                {h: "没关系", p: "méi guānxi", v: "Không có chi", r: "Một (没) + Quan (关) + Hệ (系)."},
+                {h: "不好意思", p: "bù hǎoyìsi", v: "Ngại quá", r: "Bất + Hảo + Ý (意) + Tư (思)."},
+                {h: "越南语", p: "Yuènányǔ", v: "Tiếng Việt", r: "Việt Nam + Ngữ (语) - bộ Ngôn."},
+                {h: "汉语", p: "Hànyǔ", v: "Tiếng Hán", r: "Hán (汉) + Ngữ (语)."},
+                {h: "中文", p: "Zhōngwén", v: "Tiếng Trung", r: "Trung (中) + Văn (文)."},
+                {h: "日语", p: "Rìyǔ", v: "Tiếng Nhật", r: "Nhật (日) + Ngữ (语)."},
+                {h: "英语", p: "Yīngyǔ", v: "Tiếng Anh (nói)", r: "Anh (英) + Ngữ (语)."},
+                {h: "英文", p: "Yīngwén", v: "Tiếng Anh (viết)", r: "Anh (英) + Văn (文)."},
+                {h: "韩语", p: "Hányǔ", v: "Tiếng Hàn", r: "Hàn (韩) + Ngữ (语)."},
+                {h: "法语", p: "Fǎyǔ", v: "Tiếng Pháp", r: "Pháp (法) + Ngữ (语)."},
+                {h: "俄语", p: "Éyǔ", v: "Tiếng Nga", r: "Nga (俄) + Ngữ (语)."},
+                {h: "马来语", p: "Mǎláiyǔ", v: "Tiếng Malayxia", r: "Mã Lai Tây Á + Ngữ."},
+                {h: "葡萄牙语", p: "Pútáoyáyǔ", v: "Tiếng Bồ Đào Nha", r: "Bồ Đào Nha + Ngữ."},
+                {h: "西班牙语", p: "Xībānyáyǔ", v: "Tiếng TBN", r: "Tây Ban Nha + Ngữ."},
+                {h: "德语", p: "Déyǔ", v: "Tiếng Đức", r: "Đức (德) + Ngữ (语)."},
+                {h: "阿拉伯语", p: "Ālābóyǔ", v: "Tiếng Ả Rập", r: "A Lạp Bá + Ngữ."},
+                {h: "希腊语", p: "Xīlàyǔ", v: "Tiếng Hi Lạp", r: "Hi Lạp + Ngữ."},
+                {h: "泰语", p: "Tàiyǔ", v: "Tiếng Thái Lan", r: "Thái (泰) + Ngữ (语)."},
+                {h: "母语", p: "mǔyǔ", v: "Tiếng mẹ đẻ", r: "Mẫu (母) - mẹ + Ngữ (语)."},
+                {h: "方言", p: "fāngyán", v: "Tiếng địa phương", r: "Phương (方) + Ngôn (言)."},
+                {h: "语言", p: "yǔyán", v: "Ngôn ngữ", r: "Ngữ (语) + Ngôn (言)."},
+                {h: "外语", p: "wàiyǔ", v: "Ngoại ngữ", r: "Ngoại (外) + Ngữ (语)."},
+                {h: "数学", p: "shùxué", v: "Toán", r: "Số (数) + Học (学)."},
+                {h: "语文", p: "yǔwén", v: "Văn", r: "Ngữ (语) + Văn (文)."},
+                {h: "说", p: "shuō", v: "Nói", r: "Bộ Ngôn (讠)."},
+                {h: "讲", p: "jiǎng", v: "Giảng/kể", r: "Bộ Ngôn (讠)."},
+                {h: "听", p: "tīng", v: "Nghe", r: "Bộ Khẩu (口)."},
+                {h: "吃", p: "chī", v: "Ăn", r: "Bộ Khẩu (口)."},
+                {h: "喝", p: "hē", v: "Uống", r: "Bộ Khẩu (口)."},
+                {h: "买", p: "mǎi", v: "Mua", r: "Bộ Ất (乙)."},
+                {h: "卖", p: "mài", v: "Bán", r: "Bộ Thập (十)."},
+                {h: "读", p: "dú", v: "Đọc", r: "Bộ Ngôn (讠)."},
+                {h: "要", p: "yào", v: "Cần/phải/nên", r: "Bộ Á (襾)."},
+                {h: "想", p: "xiǎng", v: "Muốn/nhớ/nghĩ", r: "Bộ Tâm (心)."},
+                {h: "会", p: "huì", v: "Biết/sẽ", r: "Bộ Nhân (人)."},
+                {h: "可以", p: "kěyǐ", v: "Có thể", r: "Khả (可) + Dĩ (以)."},
+                {h: "可能", p: "kěnéng", v: "Có khả năng", r: "Khả (可) + Năng (能)."},
+                {h: "能", p: "néng", v: "Có khả năng", r: "Bộ Nhục (肉)."},
+                {h: "应该", p: "yīnggāi", v: "Nên", r: "Ưng (应) + Cai (该)."},
+                {h: "拿", p: "ná", v: "Cầm/lấy", r: "Bộ Thủ (手)."},
+                {h: "带", p: "dài", v: "Mang/đem", r: "Bộ Cân (巾)."},
+                {h: "找", p: "zhǎo", v: "Tìm kiếm", r: "Bộ Thủ (扌)."},
+                
+                {h: "给", p: "gěi", v: "Cho", r: "Bộ Mịch (纟)."},
+                {h: "送", p: "sòng", v: "Tiễn/tặng", r: "Bộ Xước (辶)."},
+                {h: "跑", p: "pǎo", v: "Chạy", r: "Bộ Túc (足)."},
+                {h: "跑步", p: "pǎobù", v: "Chạy bộ", r: "Bão (跑) + Bộ (步)."},
+                {h: "跳", p: "tiào", v: "Nhảy", r: "Bộ Túc (足)."},
+                {h: "跳舞", p: "tiàowǔ", v: "Khiêu vũ", r: "Khiêu (跳) + Vũ (舞)."},
+                {h: "起", p: "qǐ", v: "Dậy", r: "Bộ Tẩu (走)."},
+                {h: "起床", p: "qǐchuáng", v: "Thức dậy", r: "Khởi (起) + Sàng (床)."},
+                {h: "睡", p: "shuì", v: "Ngủ", r: "Bộ Mục (目)."},
+                {h: "睡觉", p: "shuìjiào", v: "Đi ngủ", r: "Thụy (睡) + Giác (觉)."},
+                {h: "唱", p: "chàng", v: "Hát", r: "Bộ Khẩu (口)."},
+                {h: "唱歌", p: "chànggē", v: "Ca hát", r: "Xướng (唱) + Ca (歌)."},
+                {h: "上", p: "shàng", v: "Lên(shang)", r: "Bộ Nhất (一)."},
+                {h: "上学", p: "shàngxué", v: "Đi học", r: "Thượng (上) + Học (学)."},
+                {h: "上班", p: "shàngbān", v: "Đi làm", r: "Thượng (上) + Ban (班)."},
+                {h: "工作", p: "gōngzuò", v: "Làm việc", r: "Công (工) + Tác (作)."},
+                {h: "上网", p: "shàngwǎng", v: "Lên mạng", r: "Thượng (上) + Võng (网)."},
+                {h: "下", p: "xià", v: "Xuống (xià)", r: "Bộ Nhất (一)."},
+                {h: "下课", p: "xiàkè", v: "Tan học", r: "Hạ (下) + Khóa (课)."},
+                {h: "下班", p: "xiàbān", v: "Tan ca", r: "Hạ (下) + Ban (班)."},
+                {h: "加班", p: "jiābān", v: "Tăng ca", r: "Gia (加) + Ban (班)."},
+                {h: "坐", p: "zuò", v: "Ngồi (zuò)", r: "Bộ Thổ (土)."},
+                {h: "做", p: "zuò", v: "Làm công việc(zuò)", r: "Bộ Nhân (亻)."},
+                {h: "当", p: "dāng", v: "Làm nghề/bố/mẹ... (zuò)", r: "Bộ Tiểu (小)."},
+                {h: "爱", p: "ài", v: "Yêu", r: "Bộ Tâm (心)."},
+                {h: "喜欢", p: "xǐhuan", v: "Thích", r: "Hỉ (喜) + Hoan (欢)."},
+                {h: "问", p: "wèn", v: "Hỏi", r: "Bộ Khẩu (口)."},
+                {h: "请", p: "qǐng", v: "Mời/xin", r: "Bộ Ngôn (讠)."},
+                {h: "进", p: "jìn", v: "Vào", r: "Bộ Xước (辶)."},
+                {h: "当", p: "dāng", v: "Làm nghề", r: "Bộ Tiểu (小)."},
+                {h: "弄", p: "nòng", v: "Làm hỏng/sai/vỡ/rách", r: "Bộ Củng (廾)."},
+                {h: "干", p: "gàn", v: "Làm (gàn)", r: "Bộ Can (干)."},
+                {h: "搞", p: "gǎo", v: "Làm (gǎo)", r: "Bộ Thủ (扌)."},
+                {h: "玩", p: "wán", v: "Chơi", r: "Bộ Ngọc (王)."},
+                {h: "打", p: "dǎ", v: "Đánh/chơi/gọi", r: "Bộ Thủ (扌)."},
+                {h: "打球", p: "dǎqiú", v: "Đánh bóng/đá cầu", r: "Đả (打) + Cầu (球)."},
+                {h: "踢", p: "tī", v: "Đá/sút", r: "Bộ Túc (足)."},
+                {h: "踢球", p: "tīqiú", v: "Đá bóng(tì qíu)", r: "Thế (踢) + Cầu (球)."},
+                {h: "打篮球", p: "dǎ lánqiú", v: "Chơi bóng rổ", r: "Đả + Lam + Cầu."},
+                {h: "打排球", p: "dǎ páiqiú", v: "Chơi bóng chuyền", r: "Đả + Bài + Cầu."},
+                {h: "踢足球", p: "tī zúqiú", v: "Đá bóng(tì zú qíu)", r: "Thế + Túc + Cầu."},
+                {h: "借", p: "jiè", v: "Mượn", r: "Bộ Nhân (亻)."},
+                {h: "还", p: "huán", v: "Trả", r: "Bộ Xước (辶)."},
+                {h: "换", p: "huàn", v: "Đổi", r: "Bộ Thủ (扌)."},
+                {h: "差", p: "chà", v: "Kém", r: "Bộ Công (工)."},
+                {h: "刻", p: "kè", v: "Khắc", r: "Bộ Đao (刂)."},
+                {h: "不", p: "bù", v: "Không", r: "Bộ Nhất (一)."},
+                {h: "没", p: "méi", v: "Chưa", r: "Bộ Thủy (氵)."},
+                {h: "很", p: "hěn", v: "Rất", r: "Bộ Xích (彳)."},
+                {h: "太", p: "tài", v: "Quá", r: "Bộ Đại (大)."},
+                {h: "非常", p: "fēicháng", v: "Vô cùng", r: "Phi (非) + Thường (常)."},
+                {h: "好", p: "hǎo", v: "Tốt/khoẻ", r: "Bộ Nữ (女)."},
+                {h: "坏", p: "huài", v: "Xấu/hỏng", r: "Bộ Thổ (土)."},
+                {h: "漂亮", p: "piàoliang", v: "Xinh đẹp", r: "Phiêu (漂) + Lượng (亮)."},
+                {h: "帅", p: "shuài", v: "Đẹp trai", r: "Bộ Cân (巾)."},
+                {h: "丑", p: "chǒu", v: "Xấu", r: "Bộ Nhất (一)."},
+                {h: "香", p: "xiāng", v: "Thơm", r: "Bộ Hương (香)."},
+                {h: "臭", p: "chòu", v: "Hôi/thối", r: "Bộ Tự (自)."},
+                {h: "长", p: "cháng", v: "Dài", r: "Bộ Trường (长)."},
+                {h: "短", p: "duǎn", v: "Ngắn", r: "Bộ Thỉ (矢)."},
+                {h: "新", p: "xīn", v: "Mới", r: "Bộ Cân (斤)."},
+                {h: "旧", p: "jiù", v: "Cũ", r: "Bộ Nhật (日)."},
+                {h: "快", p: "kuài", v: "Nhanh", r: "Bộ Tâm (忄)."},
+                {h: "慢", p: "màn", v: "Chậm", r: "Bộ Tâm (忄)."},
+                {h: "忙", p: "máng", v: "Bận", r: "Bộ Tâm (忄)."},
+                {h: "累", p: "lèi", v: "Mệt", r: "Bộ Mịch (糸)."},
+                {h: "看", p: "kàn", v: "Nhìn", r: "Bộ Mục (目)."},
+                {h: "叫", p: "jiào", v: "Gọi/kêu", r: "Bộ Khẩu (口)."},
+                {h: "教", p: "jiāo", v: "Dạy", r: "Bộ Phộc (攵)."},
+                {h: "交", p: "jiāo", v: "Giao/nộp", r: "Bộ Đầu (亠)."},
+                {h: "热", p: "rè", v: "Nóng", r: "Bộ Hỏa (灬)."},
+                {h: "冷", p: "lěng", v: "Lạnh", r: "Bộ Băng (冫)."},
+                {h: "远", p: "yuǎn", v: "Xa", r: "Bộ Xước (辶)."},
+                {h: "近", p: "jìn", v: "Gần", r: "Bộ Xước (辶)."},
+                {h: "好吃", p: "hǎochī", v: "Ngon/dễ ăn", r: "Hảo (好) + Cật (吃)."},
+                {h: "好喝", p: "hǎohē", v: "Ngon/dễ uống", r: "Hảo (好) + Khát (喝)."},
+                {h: "好听", p: "hǎotīng", v: "Hay/dễ nghe", r: "Hảo (好) + Thính (听)."},
+                {h: "好看", p: "hǎokàn", v: "Đẹp/hay", r: "Hảo (好) + Khán (看)."},
+                {h: "洗澡", p: "xǐzǎo", v: "Tắm", r: "Tẩy (洗) + Táo (澡)."},
+                {h: "洗", p: "xǐ", v: "Giặt/rửa/vắt", r: "Bộ Thủy (氵)."},
+                {h: "学", p: "xué", v: "Học", r: "Bộ Tử (子)."},
+                {h: "休息", p: "xiūxi", v: "Nghỉ ngơi", r: "Hưu (休) + Tức (息)."},
+                {h: "介绍", p: "jièshào", v: "Giới thiệu", r: "Giới (介) + Thiệu (绍)."},
+                {h: "名字", p: "míngzi", v: "Tên", r: "Danh (名) + Tự (字)."},
+                {h: "黑色", p: "hēisè", v: "Màu đen", r: "Hắc (黑) + Sắc (色)."},
+                {h: "红色", p: "hóngsè", v: "Màu đỏ", r: "Hồng (红) + Sắc (色)."},
+                {h: "白色", p: "báisè", v: "Màu trắng", r: "Bạch (白) + Sắc (色)."},
+                {h: "粉色", p: "fěnsè", v: "Màu hồng", r: "Phấn (粉) + Sắc (色)."},
+                {h: "黄色", p: "huángsè", v: "Màu vàng", r: "Hoàng (黄) + Sắc (色)."},
+                {h: "绿色", p: "lǜsè", v: "Màu xanh lá", r: "Lục (绿) + Sắc (色)."},
+                {h: "蓝色", p: "lánsè", v: "Màu xanh lam", r: "Lam (蓝) + Sắc (色)."},
+                {h: "前边", p: "qiánbian", v: "Phía trước", r: "Tiền (前) + Biên (边)."},
+                {h: "后边", p: "hòubian", v: "Phía sau", r: "Hậu (后) + Biên (边)."},
+                {h: "里边", p: "lǐbian", v: "Bên trong", r: "Lý (里) + Biên (边)."},
+                {h: "难", p: "nán", v: "Khó", r: "Bộ Chuy (隹)."},
+                {h: "容易", p: "róngyì", v: "Dễ", r: "Dung (容) + Dịch (易)."},
+                {h: "快乐", p: "kuàilè", v: "Vui", r: "Khoái (快) + Lạc (乐)."},
+                {h: "难过", p: "nánguò", v: "Buồn", r: "Nan (难) + Quá (过)."},
+                {h: "种", p: "zhǒng", v: "Kiểu", r: "Bộ Hòa (禾)."},
+                {h: "等", p: "děng", v: "Đợi", r: "Bộ Trúc (竹)."}
+            ];
+
+            let data = masterData.slice(0, 100);
+
+            function changeRange() {
+                const val = document.getElementById('rangeSelect').value;
+                if (val === '1-100') {
+                    data = masterData.slice(0, 100);
+                } else if (val === '101-200') {
+                    data = masterData.slice(100, 200);
+                } else if (val === '201-300') {
+                    data = masterData.slice(200, 300);
+                } else if (val === 'all') {
+                    data = [...masterData];
+                } else if (val.startsWith('random-')) {
+                    const count = parseInt(val.split('-')[1]);
+                    const shuffledMaster = [...masterData].sort(() => Math.random() - 0.5);
+                    data = shuffledMaster.slice(0, count);
+                }
+                
+                if (typeof shuffle === 'function') {
+                    shuffle();
+                    updateUI();
+                }
+            }
+            
+            const originalOnLoad = window.onload;
+            window.onload = () => {
+                changeRange(); 
+            };
+        </script>
+        <script src="js/flashcard.js"></script>
+    </div>
+</body>
+</html>
