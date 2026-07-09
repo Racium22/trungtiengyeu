@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
     <title>Flashcard Từ Vựng</title>
@@ -7,6 +8,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/style.css">
 </head>
+
 <body>
     <nav class="navbar">
         <ul class="nav-links">
@@ -16,7 +18,7 @@
         </ul>
     </nav>
     <div class="flashcard-container">
-        <!-- RANGE SELECTOR UI -->
+        <!-- RANGE SELECTOR UI
         <div style="margin-top:20px; margin-bottom: 10px; display:flex; gap:10px; align-items:center; flex-wrap: wrap; justify-content: center;">
             <label for="rangeSelect" style="font-weight:bold; color:var(--secondary);">Lựa chọn số từ ôn tập:</label>
             <select id="rangeSelect" style="padding:8px 12px; border-radius:10px; border:1px solid #ccc; font-weight:bold; color:var(--primary); cursor:pointer;" onchange="changeRange()">
@@ -28,7 +30,7 @@
                 <option value="random-100">100 từ (Ngẫu nhiên)</option>
                 <option value="random-200">200 từ (Ngẫu nhiên)</option>
             </select>
-        </div>
+        </div>-->
 
         <div class="card-container" id="cardContainer" onclick="handleFlip()">
             <div class="card-inner">
@@ -160,7 +162,7 @@
 
             let data = masterData.slice(0, 100);
 
-             function changeRange() {
+            function changeRange() {
                 const val = document.getElementById('rangeSelect').value;
                 if (val === '1-100') {
                     data = masterData.slice(0, 100);
@@ -175,19 +177,20 @@
                     const shuffledMaster = [...masterData].sort(() => Math.random() - 0.5);
                     data = shuffledMaster.slice(0, count);
                 }
-                
+
                 if (typeof shuffle === 'function') {
                     shuffle();
                     updateUI();
                 }
             }
-            
+
             const originalOnLoad = window.onload;
             window.onload = () => {
-                changeRange(); 
+                changeRange();
             };
         </script>
         <script src="js/flashcard.js"></script>
     </div>
 </body>
+
 </html>
