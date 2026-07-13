@@ -24,10 +24,12 @@
             <select id="rangeSelect" style="padding:8px 12px; border-radius:10px; border:1px solid #ccc; font-weight:bold; color:var(--primary); cursor:pointer;" onchange="changeRange()">
                 <option value="1-100" selected>Từ 1 - 100</option>
                 <option value="101-200">Từ 101 - 200</option>
-                <option value="all">Tất cả 200 từ</option>
+                <option value="201-300">Từ 201 - 300</option>
+                <option value="all">Tất cả 300 từ</option>
                 <option value="random-50">50 từ (Ngẫu nhiên)</option>
                 <option value="random-100">100 từ (Ngẫu nhiên)</option>
                 <option value="random-200">200 từ (Ngẫu nhiên)</option>
+                <option value="random-300">300 từ (Ngẫu nhiên)</option>
             </select>
         </div>
 
@@ -256,7 +258,107 @@
                 { h: "等", p: "děng", v: "Chờ đợi", r: "" },
                 { h: "进", p: "jìn", v: "Vào", r: "" },
                 { h: "洗澡", p: "xǐzǎo", v: "Tắm", r: "" },
-                { h: "玩", p: "wán", v: "Chơi", r: "" }
+                { h: "玩", p: "wán", v: "Chơi", r: "" },
+                { h: "结婚", p: "jiéhūn", v: "kết hôn", r: "" },
+                { h: "爱", p: "ài", v: "Yêu", r: "" },
+                { h: "喜欢", p: "xǐhuan", v: "Thích", r: "" },
+                { h: "来", p: "lái", v: "đến", r: "" },
+                { h: "到", p: "dào", v: "đến", r: "" },
+                { h: "飞", p: "fēi", v: "Bay", r: "" },
+                { h: "上", p: "shàng", v: "lên", r: "" },
+                { h: "下", p: "xià", v: "Xuống", r: "" },
+                { h: "拍", p: "pāi", v: "vỗ, đập", r: "" },
+                { h: "要", p: "yào", v: "Cần, muốn", r: "" },
+                { h: "能", p: "néng", v: "có thể", r: "" },
+                { h: "会", p: "huì", v: "Biết, sẽ", r: "" },
+                { h: "知道", p: "zhīdào", v: "Biết", r: "" },
+                { h: "可以", p: "kěyǐ", v: "Có thể", r: "" },
+                { h: "应该", p: "yīnggāi", v: "Nên", r: "" },
+                { h: "敢", p: "gǎn", v: "Dám", r: "" },
+                { h: "想", p: "xiǎng", v: "muốn, nhớ", r: "" },
+                { h: "骑", p: "qí", v: "Cưỡi, đi", r: "" },
+                { h: "出", p: "chū", v: "Ra, xuất", r: "" },
+                { h: "回", p: "huí", v: "Về", r: "" },
+                { h: "在", p: "zài", v: "ở", r: "" },
+                { h: "住", p: "zhù", v: "sống", r: "" },
+                { h: "是", p: "shì", v: "Là, phải, vâng", r: "" },
+                { h: "有", p: "yǒu", v: "Có", r: "" },
+                { h: "认识", p: "rènshi", v: "quen", r: "" },
+                { h: "学习", p: "xuéxí", v: "học tập", r: "" },
+                { h: "上班", p: "shàngbān", v: "Đi làm", r: "" },
+                { h: "下班", p: "xiàbān", v: "Tan ca", r: "" },
+                { h: "加班", p: "jiābān", v: "Tăng ca", r: "" },
+                { h: "请假", p: "qǐngjià", v: "Nghỉ phép", r: "" },
+                { h: "上课", p: "shàngkè", v: "Đi học / Vào lớp", r: "" },
+                { h: "下课", p: "xiàkè", v: "Tan học", r: "" },
+                { h: "按", p: "àn", v: "ấn", r: "" },
+                { h: "拉", p: "lā", v: "lôi, kéo", r: "" },
+                { h: "推", p: "tuī", v: "đẩy, lùi", r: "" },
+                { h: "红色", p: "hóngsè", v: "Màu đỏ", r: "" },
+                { h: "黄色", p: "huángsè", v: "màu vàng", r: "" },
+                { h: "紫色", p: "zǐsè", v: "Màu tím", r: "" },
+                { h: "棕色", p: "zōngsè", v: "Màu nâu", r: "" },
+                { h: "粉色", p: "fěnsè", v: "màu hồng", r: "" },
+                { h: "游", p: "yóu", v: "bơi", r: "" },
+                { h: "很", p: "hěn", v: "Rất", r: "" },
+                { h: "太", p: "tài", v: "Quá", r: "" },
+                { h: "不", p: "bù", v: "không", r: "" },
+                { h: "没", p: "méi", v: "chưa / không", r: "" },
+                { h: "吗", p: "ma", v: "không?", r: "" },
+                { h: "饭", p: "fàn", v: "Cơm", r: "" },
+                { h: "放", p: "fàng", v: "đặt, để", r: "" },
+                { h: "饿", p: "è", v: "Đói", r: "" },
+                { h: "饱", p: "bǎo", v: "No", r: "" },
+                { h: "好", p: "hǎo", v: "Tốt", r: "" },
+                { h: "坏", p: "huài", v: "Xấu", r: "" },
+                { h: "新", p: "xīn", v: "Mới", r: "" },
+                { h: "旧", p: "jiù", v: "Cũ", r: "" },
+                { h: "胖", p: "pàng", v: "Béo", r: "" },
+                { h: "瘦", p: "shòu", v: "Gầy", r: "" },
+                { h: "长", p: "cháng", v: "Dài", r: "" },
+                { h: "短", p: "duǎn", v: "Ngắn", r: "" },
+                { h: "大", p: "dà", v: "To", r: "" },
+                { h: "小", p: "xiǎo", v: "Nhỏ", r: "" },
+                { h: "近", p: "jìn", v: "gần", r: "" },
+                { h: "远", p: "yuǎn", v: "Xa", r: "" },
+                { h: "东西", p: "dōngxi", v: "đồ đạc", r: "" },
+                { h: "动作", p: "dòngzuò", v: "động tác", r: "" },
+                { h: "动物", p: "dòngwù", v: "Động vật", r: "" },
+                { h: "这", p: "zhè", v: "Đây, Này", r: "" },
+                { h: "那", p: "nà", v: "Kia, đó", r: "" },
+                { h: "每", p: "měi", v: "Mỗi", r: "" },
+                { h: "次", p: "cì", v: "lần", r: "" },
+                { h: "对", p: "duì", v: "đúng / đối với", r: "" },
+                { h: "错", p: "cuò", v: "sai", r: "" },
+                { h: "高兴", p: "gāoxìng", v: "Vui", r: "" },
+                { h: "难过", p: "nánguò", v: "Buồn", r: "" },
+                { h: "快", p: "kuài", v: "nhanh", r: "" },
+                { h: "慢", p: "màn", v: "chậm", r: "" },
+                { h: "漂亮", p: "piàoliang", v: "xinh đẹp", r: "" },
+                { h: "帅哥", p: "shuàigē", v: "Đẹp trai", r: "" },
+                { h: "丑", p: "chǒu", v: "Xấu", r: "" },
+                { h: "本", p: "běn", v: "quyển", r: "" },
+                { h: "个", p: "gè", v: "Cái", r: "" },
+                { h: "张", p: "zhāng", v: "tờ, tấm (chiếc)", r: "" },
+                { h: "条", p: "tiáo", v: "con, chiếc", r: "" },
+                { h: "只", p: "zhī", v: "Con", r: "" },
+                { h: "支", p: "zhī", v: "chiếc (bút)", r: "" },
+                { h: "累", p: "lèi", v: "Mệt", r: "" },
+                { h: "数字", p: "shùzì", v: "số, số đếm", r: "" },
+                { h: "零", p: "líng", v: "0", r: "" },
+                { h: "一", p: "yī", v: "1", r: "" },
+                { h: "二", p: "èr", v: "2", r: "" },
+                { h: "三", p: "sān", v: "3", r: "" },
+                { h: "四", p: "sì", v: "4", r: "" },
+                { h: "五", p: "wǔ", v: "5", r: "" },
+                { h: "六", p: "liù", v: "6", r: "" },
+                { h: "七", p: "qī", v: "7", r: "" },
+                { h: "八", p: "bā", v: "8", r: "" },
+                { h: "九", p: "jiǔ", v: "9", r: "" },
+                { h: "十", p: "shí", v: "10", r: "" },
+                { h: "百", p: "bǎi", v: "Trăm", r: "" },
+                { h: "千", p: "qiān", v: "Nghìn", r: "" },
+                { h: "万", p: "wàn", v: "vạn", r: "" }
             ];
 
             let data = masterData.slice(0, 100);
@@ -268,11 +370,13 @@
                     data = masterData.slice(0, 100);
                 } else if (val === '101-200') {
                     data = masterData.slice(100, 200);
+                } else if (val === '201-300') {
+                    data = masterData.slice(200, 300);
                 } else if (val === 'all') {
-                    data = masterData.slice(0, 200);
+                    data = masterData.slice(0, 300);
                 } else if (val.startsWith('random-')) {
                     const count = parseInt(val.split('-')[1]);
-                    const activeMaster = masterData.slice(0, 200);
+                    const activeMaster = masterData.slice(0, 300);
                     const shuffledMaster = [...activeMaster].sort(() => Math.random() - 0.5);
                     data = shuffledMaster.slice(0, count);
                 }
