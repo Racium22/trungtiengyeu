@@ -370,13 +370,11 @@
                     data = masterData.slice(0, 100);
                 } else if (val === '101-200') {
                     data = masterData.slice(100, 200);
-                } else if (val === '201-300') {
-                    data = masterData.slice(200, 300);
                 } else if (val === 'all') {
-                    data = masterData.slice(0, 300);
+                    data = masterData.slice(0, 200);
                 } else if (val.startsWith('random-')) {
                     const count = parseInt(val.split('-')[1]);
-                    const activeMaster = masterData.slice(0, 300);
+                    const activeMaster = masterData.slice(0, 200);
                     const shuffledMaster = [...activeMaster].sort(() => Math.random() - 0.5);
                     data = shuffledMaster.slice(0, count);
                 }
