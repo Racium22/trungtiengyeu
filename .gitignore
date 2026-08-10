@@ -1,0 +1,15 @@
+# File Excel
+*.xlsx
+*.xls
+*.xlsm
+*.csv
+
+# Thư mục tài liệu
+tailieu/
+tailieu/*
+
+# Thư mục tạm & Hệ điều hành
+.DS_Store
+Thumbs.db
+*.tmp
+*.log

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ôn Tập Từ Vựng HSK 1</title>
+    <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+    <!-- NAVIGATION MENU -->
+    <nav class="navbar">
+        <ul class="nav-links">
+            <li><a href="index.html">Trang Chủ</a></li>
+            <li><a href="sotay.html">Sổ Tay</a></li>
+            <li><a href="flashcard.html">Flashcard</a></li>
+            <li><a href="ontap.html" class="active">Ôn Tập</a></li>
+        </ul>
+    </nav>
+
+    <!-- MAIN ON TAP CONTAINER -->
+    <div class="ontap-container">
+        <!-- SCORE & COUNTER BAR -->
+        <div class="score-bar">
+            <span id="counterText">Câu 1 / 300</span>
+            <div class="score-group">
+                <span id="scoreCorrect" class="score-correct">Đúng: 0</span>
+                <span id="scoreWrong" class="score-wrong">Sai: 0</span>
+            </div>
+        </div>
+
+        <!-- QUIZ CARD -->
+        <div class="quiz-card">
+            <div class="quiz-label">NGHĨA TIẾNG VIỆT</div>
+            <div class="quiz-meaning" id="displayMeaning">...</div>
+
+            <div class="quiz-form">
+                <input type="text" id="userInput" class="quiz-input" placeholder="Gõ Pinyin hoặc Chữ cứng..." autocomplete="off" spellcheck="false">
+                <button type="button" id="actionBtn" class="btn-action btn-submit">KIỂM TRA (Enter)</button>
+            </div>
+
+            <!-- RESULT DISPLAY PANEL -->
+            <div id="resultContainer" class="result-container hidden">
+                <div id="resultBadge" class="status-badge">ĐÚNG</div>
+                <div class="answer-details">
+                    <div id="answerHanzi" class="answer-hanzi"></div>
+                    <div id="answerPinyin" class="answer-pinyin"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- EXTERNAL JS FILES -->
+    <script src="js/data.js"></script>
+    <script src="js/ontap.js"></script>
+</body>
+</html>
