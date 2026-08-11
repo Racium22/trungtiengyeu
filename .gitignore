@@ -3,7 +3,7 @@
 *.xls
 *.xlsm
 *.csv
-
+*.gitignore
 # Thư mục tài liệu
 tailieu/
 tailieu/*
